@@ -1,96 +1,128 @@
 const prompt = require("prompt-sync")({ sigint: true });
 
-function validarNome(nome) {
-  return nome.length >= 5;
-}
-
-function validarCPF(cpf) {
-  return /^\d{11}$/.test(cpf);
-}
-
-function validarDataNascimento(dataNascimento) {
-  const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-  if (!regex.test(dataNascimento)) {
-    return false;
+class Cliente {
+  constructor(
+    nome,
+    cpf,
+    dataNascimento,
+    rendaMensal,
+    estadoCivil,
+    dependentes
+  ) {
+    this.nome = nome;
+    this.cpf = cpf;
+    this.dataNascimento = dataNascimento;
+    this.rendaMensal = rendaMensal;
+    this.estadoCivil = estadoCivil;
+    this.dependentes = dependentes;
   }
 
-  const [, dia, mes, ano] = regex.exec(dataNascimento);
-  const data = new Date(`${ano}-${mes}-${dia}`);
-  const dataAtual = new Date();
+  validarNome() {
+    return this.nome.length >= 5;
+  }
 
-  return data instanceof Date &&
-    !isNaN(data) &&
-    data <= dataAtual &&
-    dataAtual.getFullYear() - data.getFullYear() >= 18
-    ? data
-    : null;
-}
+  validarCPF() {
+    return /^\d{11}$/.test(this.cpf);
+  }
 
-function validarRendaMensal(rendaMensal) {
-  return /^\d+(\.\d{1,2})?$/.test(rendaMensal);
-}
+  validarDataNascimento() {
+    const regex = /^(\d{2}) ?\/ ?(\d{2}) ?\/ ?(\d{4})$/;
+    if (!regex.test(this.dataNascimento)) {
+      return false;
+    }
 
-function validarEstadoCivil(estadoCivil) {
-  return /^[CSVDcsvd]$/.test(estadoCivil);
-}
+    const [, dia, mes, ano] = regex.exec(this.dataNascimento);
+    const data = new Date(`${ano}-${mes}-${dia}`);
+    const dataAtual = new Date();
 
-function validarDependentes(dependentes) {
-  return /^[0-9]$|^10$/.test(dependentes);
-}
+    return (
+      data instanceof Date &&
+      !isNaN(data) &&
+      data <= dataAtual &&
+      dataAtual.getFullYear() - data.getFullYear() >= 18
+    );
+  }
 
-function formatarCPF(cpf) {
-  return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
-}
+  validarRendaMensal() {
+    return /^\d+(\.\d{1,2})?$/.test(this.rendaMensal);
+  }
 
-function formatarData(data) {
-  const dia = String(data.getDate()).padStart(2, "0");
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const ano = data.getFullYear();
-  return `${dia}/${mes}/${ano}`;
-}
+  validarEstadoCivil() {
+    return /^[CSVDcsvd]$/.test(this.estadoCivil);
+  }
 
-function solicitarDado(mensagem, validacao) {
-  while (true) {
-    const dado = prompt(mensagem);
+  validarDependentes() {
+    return /^[0-9]$|^10$/.test(this.dependentes);
+  }
 
-    if (validacao(dado)) {
-      return dado;
+  formatarCPF() {
+    return this.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+  }
+
+  formatarData(data) {
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  formatarDataNascimento() {
+    const dataSemEspacos = this.dataNascimento.replace(/\s/g, "");
+    const data = new Date(dataSemEspacos);
+    return this.formatarData(data);
+  }
+
+  solicitarDado(mensagem, validacao) {
+    while (true) {
+      const dado = prompt(mensagem);
+
+      if (validacao.call(this)) {
+        return dado;
+      } else {
+        console.log("Dado inválido. Digite novamente.");
+      }
+    }
+  }
+
+  cadastrarCliente() {
+    console.log("=== Cadastro de Cliente ===");
+
+    this.nome = this.solicitarDado("Nome: ", this.validarNome);
+    this.cpf = this.solicitarDado("CPF: ", this.validarCPF);
+    this.dataNascimento = this.solicitarDado(
+      "Data de Nascimento (DD/MM/AAAA): ",
+      this.validarDataNascimento
+    );
+    this.rendaMensal = this.solicitarDado(
+      "Renda Mensal: ",
+      this.validarRendaMensal
+    );
+    this.estadoCivil = this.solicitarDado(
+      "Estado Civil (C, S, V ou D): ",
+      this.validarEstadoCivil
+    );
+    this.dependentes = this.solicitarDado(
+      "Número de Dependentes (0 a 10): ",
+      this.validarDependentes
+    );
+
+    if (!this.validarDataNascimento()) {
+      console.log("Data de Nascimento inválida. Cadastro cancelado.");
     } else {
-      console.log("Dado inválido. Digite novamente.");
+      const dataNascimentoFormatada = this.formatarDataNascimento();
+      const cpfFormatado = this.formatarCPF();
+      const rendaMensalFormatada = parseFloat(this.rendaMensal).toFixed(2);
+
+      console.log("\n=== Dados do Cliente ===");
+      console.log(`Nome: ${this.nome}`);
+      console.log(`CPF: ${cpfFormatado}`);
+      console.log(`Data de Nascimento: ${dataNascimentoFormatada}`);
+      console.log(`Renda Mensal: R$ ${rendaMensalFormatada}`);
+      console.log(`Estado Civil: ${this.estadoCivil.toUpperCase()}`);
+      console.log(`Dependentes: ${this.dependentes}`);
     }
   }
 }
 
-console.log("=== Cadastro de Cliente ===");
-
-const nome = solicitarDado("Nome: ", validarNome);
-const cpf = solicitarDado("CPF: ", validarCPF);
-const dataNascimento = solicitarDado(
-  "Data de Nascimento (DD/MM/AAAA): ",
-  validarDataNascimento
-);
-const rendaMensal = solicitarDado("Renda Mensal: ", validarRendaMensal);
-const estadoCivil = solicitarDado(
-  "Estado Civil (C, S, V ou D): ",
-  validarEstadoCivil
-);
-const dependentes = solicitarDado(
-  "Número de Dependentes (0 a 10): ",
-  validarDependentes
-);
-
-if (dataNascimento === null) {
-  console.log("Data de Nascimento inválida. Cadastro cancelado.");
-} else {
-  const dataNascimentoFormatada = formatarData(new Date(dataNascimento));
-  const cpfFormatado = formatarCPF(cpf);
-  const rendaMensalFormatada = parseFloat(rendaMensal).toFixed(2);
-
-  console.log("\n=== Dados do Cliente ===");
-  console.log(`Nome: ${nome}`);
-  console.log(`CPF: ${cpfFormatado}`);
-  console.log(`Data de Nascimento: ${dataNascimentoFormatada}`);
-  console.log(`Renda Mensal: R$ ${rendaMensalFormatada}`);
-  console.log(`Estado Civil: ${estadoCivil.toUpperCase()}`);
-  console.log(`Dependentes: ${dependentes}`);
-}
+const cliente = new Cliente();
+cliente.cadastrarCliente();
