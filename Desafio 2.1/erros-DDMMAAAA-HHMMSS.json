@@ -1,0 +1,17 @@
+[
+  {
+    "dados": {
+      "nome": "Carlos Roberto",
+      "cpf": "18493838047",
+      "dt_nascimento": "14091966",
+      "renda_mensal": "8387,92",
+      "estado_civil": "C"
+    },
+    "erros": [
+      {
+        "campo": "FileHasNoArrayError",
+        "mensagem": "O arquivo de entrada não contém um Array."
+      }
+    ]
+  }
+]
