@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 import InputFile from "./inputFile.js";
 import OutputFile from "./outputFile.js";
 
@@ -32,6 +34,56 @@ class Validation {
           campo: "FileHasNoArrayError",
           mensagem: "O arquivo de entrada não contém um Array.",
         });
+      } else {
+        // Valida cada cliente no array de dados
+        dataSerializer.forEach((cliente, index) => {
+          const { nome, cpf, dt_nascimento, renda_mensal, estado_civil } =
+            cliente;
+
+          if (!this.validarNome(nome)) {
+            validationResult.erros.push({
+              campo: `dados[${index}].nome`,
+              mensagem: "O nome deve ter entre 5 e 60 caracteres.",
+            });
+          }
+
+          if (!this.validarCPF(cpf)) {
+            validationResult.erros.push({
+              campo: `dados[${index}].cpf`,
+              mensagem: "CPF inválido.",
+            });
+          }
+
+          if (!this.validarDataNascimento(dt_nascimento)) {
+            validationResult.erros.push({
+              campo: `dados[${index}].dt_nascimento`,
+              mensagem:
+                "Data de nascimento inválida ou cliente menor de 18 anos.",
+            });
+          }
+
+          if (
+            renda_mensal !== undefined &&
+            !this.validarRendaMensal(renda_mensal)
+          ) {
+            validationResult.erros.push({
+              campo: `dados[${index}].renda_mensal`,
+              mensagem:
+                "Renda mensal inválida. Deve ser um valor maior ou igual a 0 com duas casas decimais.",
+            });
+          }
+
+          if (
+            estado_civil !== undefined &&
+            !this.validarEstadoCivil(estado_civil)
+          ) {
+            validationResult.erros.push({
+              campo: `dados[${index}].estado_civil`,
+              mensagem:
+                "Estado civil inválido. Deve ser 'C', 'S', 'V' ou 'D' (maiúsculo ou minúsculo).",
+            });
+          }
+        });
       }
 
       // Adiciona os dados e erros de validação ao objeto OutputFile
@@ -53,7 +105,35 @@ class Validation {
       console.error(error.message);
     }
   }
+
+  validarNome(nome) {
+    return nome.length >= 5 && nome.length <= 60;
+  }
+
+  validarCPF(cpf) {
+    return /^\d{11}$/.test(cpf);
+  }
+
+  validarDataNascimento(dt_nascimento) {
+    const data = DateTime.fromFormat(dt_nascimento, "ddMMyyyy");
+
+    const dataAtual = DateTime.local();
+
+    return (
+      data.isValid && data <= dataAtual && dataAtual.year - data.year >= 18
+    );
+  }
+
+  validarRendaMensal(renda_mensal) {
+    return /^\d+(\,\d{1,2})?$/.test(renda_mensal);
+  }
+
+  validarEstadoCivil(estado_civil) {
+    return /^[CSVD]$/.test(estado_civil.toUpperCase());
+  }
 }
+
+// Restante do código permanece igual
 
 // Cria uma instância da classe InputFile e passa o caminho do arquivo JSON como argumento
 const inputFile = new InputFile(process.argv[2]);
