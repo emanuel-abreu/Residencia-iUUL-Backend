@@ -1,8 +1,6 @@
 import { promises as fs } from "fs";
 import { DateTime } from "luxon";
 
-import { FileWriteError } from "./returnErros.js";
-
 class OutputFile {
   #errors = [];
 
@@ -22,9 +20,7 @@ class OutputFile {
       await fs.writeFile(`erros-${currentDate}.json`, dataSerializer);
     } catch (error) {
       // If there is an error generating the output file, throw a FileWriteError
-      throw new FileWriteError(
-        "Erro ao gerar o arquivo de saída: " + error.message
-      );
+      throw new Error("Erro ao gerar o arquivo de saída: " + error.message);
     }
   }
 }

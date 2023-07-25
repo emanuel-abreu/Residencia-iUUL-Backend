@@ -3,8 +3,6 @@ import { DateTime } from "luxon";
 import InputFile from "./inputFile.js";
 import OutputFile from "./outputFile.js";
 
-import { FileHasNoArrayError } from "./returnErros.js";
-
 class Validation {
   #inputFile;
   #outputFile;
@@ -29,36 +27,32 @@ class Validation {
       };
 
       if (!Array.isArray(dataSerializer)) {
-        // Adiciona o erro ao objeto de validação
-        validationResult.erros.push({
-          campo: "FileHasNoArrayError",
-          mensagem: "O arquivo de entrada não contém um Array.",
-        });
+        throw new Error("Erro: O arquivo de entrada não contém um Array.");
       } else {
         // Valida cada cliente no array de dados
         dataSerializer.forEach((cliente, index) => {
           const { nome, cpf, dt_nascimento, renda_mensal, estado_civil } =
             cliente;
 
-          if (!this.validarNome(nome)) {
+          // Validar se os campos obrigatórios estão presentes
+          if (!nome) {
             validationResult.erros.push({
               campo: `dados[${index}].nome`,
-              mensagem: "O nome deve ter entre 5 e 60 caracteres.",
+              mensagem: "Campo obrigatório ausente: Nome.",
             });
           }
 
-          if (!this.validarCPF(cpf)) {
+          if (!cpf) {
             validationResult.erros.push({
               campo: `dados[${index}].cpf`,
-              mensagem: "CPF inválido.",
+              mensagem: "Campo obrigatório ausente: CPF.",
             });
           }
 
-          if (!this.validarDataNascimento(dt_nascimento)) {
+          if (!dt_nascimento) {
             validationResult.erros.push({
               campo: `dados[${index}].dt_nascimento`,
-              mensagem:
-                "Data de nascimento inválida ou cliente menor de 18 anos.",
+              mensagem: "Campo obrigatório ausente: Data de nascimento.",
             });
           }
 
@@ -93,8 +87,7 @@ class Validation {
       return validationResult;
     } catch (error) {
       // Tratamento de erro caso o conteúdo do arquivo JSON não seja válido
-      console.error(error.message);
-      throw error;
+      return console.error(error.message);
     }
   }
 
@@ -102,7 +95,7 @@ class Validation {
     try {
       await this.#outputFile.writeOutputFile();
     } catch (error) {
-      console.error(error.message);
+      console.error("Erro: ", error.message);
     }
   }
 
@@ -148,9 +141,7 @@ if (process.argv.length < 3) {
   // Valida os dados assincronamente
   validation.validationDatas().then((validationResult) => {
     // Verifica se há erros de validação
-    if (validationResult.erros.length > 0) {
-      validation.generateOutputFile(); // Gera o arquivo de saída somente se houver erros
-    } else {
+    if (validationResult) {
       validation.generateOutputFile();
       console.log("Não foram encontrados erros de validação.");
     }

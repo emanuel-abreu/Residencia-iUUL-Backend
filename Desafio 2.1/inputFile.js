@@ -1,7 +1,5 @@
 import { promises as fs } from "fs";
 
-import { FileNotFoundError, FileReadError } from "./returnErros.js";
-
 class InputFile {
   #filePath;
 
@@ -15,7 +13,7 @@ class InputFile {
       const fileData = await fs.readFile(this.#filePath, "utf-8");
 
       if (!fileData) {
-        throw new FileNotFoundError("O arquivo de entrada está vazio.");
+        throw new Error("O arquivo de entrada está vazio.");
       }
 
       return fileData; // Retornar o conteúdo do arquivo lido
@@ -23,12 +21,12 @@ class InputFile {
       /* Caso o arquivo de entrada não exista ou ocorra um erro de leitura,
          a aplicação deverá apresentar uma mensagem de erro. */
       if (error.code === "ENOENT") {
-        throw new FileNotFoundError("Arquivo não encontrado.");
+        throw new Error(
+          "Erro: Arquivo não encontrado, verifique se o path foi passado corretamente."
+        );
       }
 
-      throw new FileReadError(
-        "Erro ao ler o arquivo de entrada: " + error.message
-      );
+      throw new Error("Erro ao ler o arquivo de entrada: " + error.message);
     }
   }
 }
