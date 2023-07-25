@@ -1,5 +1,7 @@
 [
   {
+    "nome": "Pedro de Almeida",
+    "cpf": "78444434051",
     "dt_nascimento": "15021996",
     "renda_mensal": "3584,12",
     "estado_civil": "S"
@@ -7,6 +9,7 @@
   {
     "nome": "Ana Beatriz",
     "cpf": "70789422050",
+    "dt_nascimento": "28102000",
     "renda_mensal": "2810,25",
     "estado_civil": "S"
   },

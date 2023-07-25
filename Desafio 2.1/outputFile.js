@@ -4,6 +4,8 @@ import { DateTime } from "luxon";
 class OutputFile {
   #errors = [];
 
+  //  Ajeitar o arquivo de erros
+
   // Adiciona os dados e erros de validação ao objeto OutputFile
   addError(data, errors) {
     for (let i = 0; i < data.length; i++) {

@@ -56,6 +56,31 @@ class Validation {
             });
           }
 
+          if (nome !== undefined && !this.validarNome(nome)) {
+            validationResult.erros.push({
+              campo: `nome`,
+              mensagem: 'O campo "nome" deve ter entre 5 à 60 caracteres.',
+            });
+          }
+
+          if (cpf !== undefined && !this.validarCPF(cpf)) {
+            validationResult.erros.push({
+              campo: `cpf`,
+              mensagem: "CPF é inválido.",
+            });
+          }
+
+          if (
+            dt_nascimento !== undefined &&
+            !this.validarDataNascimento(dt_nascimento)
+          ) {
+            validationResult.erros.push({
+              campo: `dt_nascimento`,
+              mensagem:
+                "Deve está no formato DDMMAAAA. O cliente deve ter pelo menos 18 anos na data atual.",
+            });
+          }
+
           if (
             renda_mensal !== undefined &&
             !this.validarRendaMensal(renda_mensal)
@@ -141,7 +166,6 @@ if (process.argv.length < 3) {
     // Verifica se há erros de validação
     if (validationResult) {
       validation.generateOutputFile();
-      console.log("Não foram encontrados erros de validação.");
     }
   });
 }
