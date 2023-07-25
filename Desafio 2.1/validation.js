@@ -30,28 +30,28 @@ class Validation {
         throw new Error("Erro: O arquivo de entrada não contém um Array.");
       } else {
         // Valida cada cliente no array de dados
-        dataSerializer.forEach((cliente, index) => {
+        dataSerializer.forEach((cliente) => {
           const { nome, cpf, dt_nascimento, renda_mensal, estado_civil } =
             cliente;
 
           // Validar se os campos obrigatórios estão presentes
           if (!nome) {
             validationResult.erros.push({
-              campo: `dados[${index}].nome`,
+              campo: `nome`,
               mensagem: "Campo obrigatório ausente: Nome.",
             });
           }
 
           if (!cpf) {
             validationResult.erros.push({
-              campo: `dados[${index}].cpf`,
+              campo: `cpf`,
               mensagem: "Campo obrigatório ausente: CPF.",
             });
           }
 
           if (!dt_nascimento) {
             validationResult.erros.push({
-              campo: `dados[${index}].dt_nascimento`,
+              campo: `dt_nascimento`,
               mensagem: "Campo obrigatório ausente: Data de nascimento.",
             });
           }
@@ -61,7 +61,7 @@ class Validation {
             !this.validarRendaMensal(renda_mensal)
           ) {
             validationResult.erros.push({
-              campo: `dados[${index}].renda_mensal`,
+              campo: `renda_mensal`,
               mensagem:
                 "Renda mensal inválida. Deve ser um valor maior ou igual a 0 com duas casas decimais.",
             });
@@ -72,7 +72,7 @@ class Validation {
             !this.validarEstadoCivil(estado_civil)
           ) {
             validationResult.erros.push({
-              campo: `dados[${index}].estado_civil`,
+              campo: `estado_civil`,
               mensagem:
                 "Estado civil inválido. Deve ser 'C', 'S', 'V' ou 'D' (maiúsculo ou minúsculo).",
             });
@@ -125,8 +125,6 @@ class Validation {
     return /^[CSVD]$/.test(estado_civil.toUpperCase());
   }
 }
-
-// Restante do código permanece igual
 
 // Cria uma instância da classe InputFile e passa o caminho do arquivo JSON como argumento
 const inputFile = new InputFile(process.argv[2]);

@@ -4,22 +4,31 @@ import { DateTime } from "luxon";
 class OutputFile {
   #errors = [];
 
+  // Adiciona os dados e erros de validação ao objeto OutputFile
   addError(data, errors) {
-    this.#errors.push({ dados: data, erros: errors });
+    for (let i = 0; i < data.length; i++) {
+      const errorObj = { data: data[i], erros: [] };
+
+      if (errors[i]) {
+        errorObj.erros.push(errors[i]);
+        this.#errors.push(errorObj);
+      }
+    }
   }
 
+  // Escreve o arquivo de saída com os erros de validação em formato JSON
   async writeOutputFile() {
     try {
-      // Transform the errors array to JSON
+      // Transforma o array de erros em JSON
       const dataSerializer = JSON.stringify(this.#errors);
 
-      // Get the current date and time using Luxon
+      // Obtém a data e hora atual usando o Luxon
       const currentDate = DateTime.now().toFormat("ddLLyyyy-HHmmss");
 
-      // Write the errors array to the output file erros-DDMMAAAA-HHMMSS.json
+      // Escreve o array de erros no arquivo de saída erros-DDMMAAAA-HHMMSS.json
       await fs.writeFile(`erros-${currentDate}.json`, dataSerializer);
     } catch (error) {
-      // If there is an error generating the output file, throw a FileWriteError
+      // Se houver um erro ao gerar o arquivo de saída, lança um FileWriteError
       throw new Error("Erro ao gerar o arquivo de saída: " + error.message);
     }
   }

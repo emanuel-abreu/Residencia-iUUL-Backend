@@ -1,0 +1,36 @@
+[
+  {
+    "data": {
+      "dt_nascimento": "15021996",
+      "renda_mensal": "3584,12",
+      "estado_civil": "S"
+    },
+    "erros": [
+      { "campo": "nome", "mensagem": "Campo obrigatório ausente: Nome." }
+    ]
+  },
+  {
+    "data": {
+      "nome": "Ana Beatriz",
+      "cpf": "70789422050",
+      "renda_mensal": "2810,25",
+      "estado_civil": "S"
+    },
+    "erros": [{ "campo": "cpf", "mensagem": "Campo obrigatório ausente: CPF." }]
+  },
+  {
+    "data": {
+      "nome": "Andre Rocha",
+      "cpf": "41719321060",
+      "dt_nascimento": "07051984",
+      "renda_mensal": "4110,39",
+      "estado_civil": "S"
+    },
+    "erros": [
+      {
+        "campo": "dt_nascimento",
+        "mensagem": "Campo obrigatório ausente: Data de nascimento."
+      }
+    ]
+  }
+]
