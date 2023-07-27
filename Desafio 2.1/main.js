@@ -2,6 +2,8 @@ import InputFile from "./inputFile.js";
 import OutputFile from "./outputFile.js";
 import Validation from "./validation.js";
 
+// Para execução: node main.js <path do arquivo json>
+
 // Cria uma instância da classe InputFile e passa o caminho do arquivo JSON como 3° argumento
 const inputFile = new InputFile(process.argv[2]);
 
