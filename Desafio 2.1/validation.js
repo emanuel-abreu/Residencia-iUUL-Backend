@@ -20,50 +20,45 @@ class Validation {
       // Faz o parsing do conteúdo JSON para um objeto JavaScript
       const dataSerializer = JSON.parse(fileData);
 
-      // Cria um objeto para armazenar os dados e os erros de validação
-      const validationResult = {
-        dados: dataSerializer,
-        erros: [],
-      };
-
       if (!Array.isArray(dataSerializer)) {
         throw new Error("Erro: O arquivo de entrada não contém um Array.");
       } else {
-        // Valida cada cliente no array de dados
-        dataSerializer.forEach((cliente) => {
-          const { nome, cpf, dt_nascimento, renda_mensal, estado_civil } =
-            cliente;
-
+        // Cria um array para armazenar os dados e os erros de validação
+        const dataValidation = dataSerializer.map((client) => {
+          const validationResult = {
+            datas: client,
+            erros: [],
+          };
           // Validar se os campos obrigatórios estão presentes
-          if (!nome) {
+          if (!client.nome) {
             validationResult.erros.push({
               campo: `nome`,
               mensagem: "Campo obrigatório ausente: Nome.",
             });
           }
 
-          if (!cpf) {
+          if (!client.cpf) {
             validationResult.erros.push({
               campo: `cpf`,
               mensagem: "Campo obrigatório ausente: CPF.",
             });
           }
 
-          if (!dt_nascimento) {
+          if (!client.dt_nascimento) {
             validationResult.erros.push({
               campo: `dt_nascimento`,
               mensagem: "Campo obrigatório ausente: Data de nascimento.",
             });
           }
 
-          if (nome !== undefined && !this.validarNome(nome)) {
+          if (client.nome !== undefined && !this.validateName(client.nome)) {
             validationResult.erros.push({
               campo: `nome`,
-              mensagem: 'O campo "nome" deve ter entre 5 à 60 caracteres.',
+              mensagem: "O campo 'nome' deve ter entre 5 à 60 caracteres.",
             });
           }
 
-          if (cpf !== undefined && !this.validarCPF(cpf)) {
+          if (client.cpf !== undefined && !this.validateCPF(client.cpf)) {
             validationResult.erros.push({
               campo: `cpf`,
               mensagem: "CPF é inválido.",
@@ -71,19 +66,19 @@ class Validation {
           }
 
           if (
-            dt_nascimento !== undefined &&
-            !this.validarDataNascimento(dt_nascimento)
+            client.dt_nascimento !== undefined &&
+            !this.validateDateOfBirth(client.dt_nascimento)
           ) {
             validationResult.erros.push({
               campo: `dt_nascimento`,
               mensagem:
-                "Deve está no formato DDMMAAAA. O cliente deve ter pelo menos 18 anos na data atual.",
+                "Data de nascimento inválida(DDMMAAAA): O cliente deve ter pelo menos 18 anos na data atual.",
             });
           }
 
           if (
-            renda_mensal !== undefined &&
-            !this.validarRendaMensal(renda_mensal)
+            client.renda_mensal !== undefined &&
+            !this.validateMonthlyIncome(client.renda_mensal)
           ) {
             validationResult.erros.push({
               campo: `renda_mensal`,
@@ -93,8 +88,8 @@ class Validation {
           }
 
           if (
-            estado_civil !== undefined &&
-            !this.validarEstadoCivil(estado_civil)
+            client.estado_civil !== undefined &&
+            !this.validateCivilStatus(client.estado_civil)
           ) {
             validationResult.erros.push({
               campo: `estado_civil`,
@@ -102,16 +97,20 @@ class Validation {
                 "Estado civil inválido. Deve ser 'C', 'S', 'V' ou 'D' (maiúsculo ou minúsculo).",
             });
           }
+
+          return validationResult;
         });
+
+        // Adiciona os dados e erros de validação ao objeto da classe OutputFile
+        dataValidation.forEach((result) => {
+          const { datas, erros } = result;
+          this.#outputFile.addError(datas, erros);
+        });
+
+        // Retorna o resultado da validação
+        return dataValidation;
       }
-
-      // Adiciona os dados e erros de validação ao objeto OutputFile
-      this.#outputFile.addError(validationResult.dados, validationResult.erros);
-
-      // Retorna o resultado da validação
-      return validationResult;
     } catch (error) {
-      // Tratamento de erro caso o conteúdo do arquivo JSON não seja válido
       return console.error(error.message);
     }
   }
@@ -124,15 +123,15 @@ class Validation {
     }
   }
 
-  validarNome(nome) {
+  validateName(nome) {
     return nome.length >= 5 && nome.length <= 60;
   }
 
-  validarCPF(cpf) {
+  validateCPF(cpf) {
     return /^\d{11}$/.test(cpf);
   }
 
-  validarDataNascimento(dt_nascimento) {
+  validateDateOfBirth(dt_nascimento) {
     const data = DateTime.fromFormat(dt_nascimento, "ddMMyyyy");
 
     const dataAtual = DateTime.local();
@@ -142,30 +141,13 @@ class Validation {
     );
   }
 
-  validarRendaMensal(renda_mensal) {
+  validateMonthlyIncome(renda_mensal) {
     return /^\d+(\,\d{1,2})?$/.test(renda_mensal);
   }
 
-  validarEstadoCivil(estado_civil) {
+  validateCivilStatus(estado_civil) {
     return /^[CSVD]$/.test(estado_civil.toUpperCase());
   }
 }
 
-// Cria uma instância da classe InputFile e passa o caminho do arquivo JSON como argumento
-const inputFile = new InputFile(process.argv[2]);
-
-// Verifica se foi passado o caminho do arquivo JSON como argumento na linha de comando
-if (process.argv.length < 3) {
-  console.log("Você precisa fornecer o caminho do arquivo JSON de entrada.");
-} else {
-  // Cria o Validation, passando a instância do InputFile que já tem o caminho do arquivo
-  const validation = new Validation(inputFile);
-
-  // Valida os dados assincronamente
-  validation.validationDatas().then((validationResult) => {
-    // Verifica se há erros de validação
-    if (validationResult) {
-      validation.generateOutputFile();
-    }
-  });
-}
+export default Validation;
