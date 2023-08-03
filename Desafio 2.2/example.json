@@ -1,0 +1,12 @@
+{
+  "motd": {
+    "msg": "If you or your company use this project or like what we doing, please consider backing us so we can continue maintaining and evolving this project.",
+    "url": "https://exchangerate.host/#/donate"
+  },
+  "success": true,
+  "query": { "from": "USD", "to": "BRL", "amount": 100 },
+  "info": { "rate": 4.812357 },
+  "historical": false,
+  "date": "2023-08-03",
+  "result": 481.23567
+}

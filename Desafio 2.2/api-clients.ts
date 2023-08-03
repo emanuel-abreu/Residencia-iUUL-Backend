@@ -13,23 +13,31 @@ interface Converter {
   result: number;
 }
 
-class ApiClient {
+class GenericApiClient<T> {
+  async fetchApi(url: string): Promise<T> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      const error = (await response.json()) as { error: unknown };
+      throw new Error(`Erro na comunicação com a API: ${error.error}`);
+    }
+    const data = (await response.json()) as T;
+    return data;
+  }
+}
+
+class ExchangeRate extends GenericApiClient<Converter> {
   async fetchExchangeRate(
     from: string,
     to: string,
     amount: number
   ): Promise<Converter> {
     const urlApi: string = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
-    const response = await fetch(urlApi);
-    if (!response.ok) {
-      const error = (await response.json()) as { error: string };
-      throw new Error(`Erro na comunicação com a API: ${error.error}`);
+    try {
+      return await this.fetchApi(urlApi);
+    } catch (error) {
+      throw new Error(`Erro na comunicação com a API: ${error}`);
     }
-
-    const data = (await response.json()) as Converter;
-
-    return data;
   }
 }
 
-export default ApiClient;
+export default ExchangeRate;

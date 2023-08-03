@@ -1,14 +1,16 @@
 import InputHandler from "./inputDatas.js";
 import InputValidator from "./validationDatas.js";
-import ApiClient from "./api-clients.js";
+import ExchangeRate from "./api-clients.js";
 
 class CurrencyConverter {
   private inputHandler: InputHandler;
-  private apiClient: ApiClient;
+  private exchangeRate: ExchangeRate;
+  private inputValidator: InputValidator;
 
   constructor() {
+    this.inputValidator = new InputValidator();
     this.inputHandler = new InputHandler();
-    this.apiClient = new ApiClient();
+    this.exchangeRate = new ExchangeRate();
   }
 
   async convertCurrency(): Promise<void> {
@@ -17,46 +19,38 @@ class CurrencyConverter {
         const from = this.inputHandler.getCurrencyCode(
           "Digite a moeda de origem (Ex: USD): "
         );
-        if (from === "") break;
 
         const to = this.inputHandler.getCurrencyCode(
           "Digite a moeda de destino (Ex: BRL): "
         );
+
+        if (to == "") {
+          break;
+        }
+
         if (from === to) {
-          console.log(
-            "A moeda de origem deve ser diferente da moeda de destino.\n"
+          throw new Error(
+            "Erro: A moeda de origem deve ser diferente da moeda de destino.\n"
           );
-          continue;
         }
 
         const amount = this.inputHandler.getAmount(
-          "Digite o valor monetário: "
+          "Digite o valor monetário a ser convertido: "
         );
 
-        if (
-          !InputValidator.isCurrencyCodeValid(from) ||
-          !InputValidator.isCurrencyCodeValid(to)
-        ) {
-          console.log(
-            "Moeda de origem e de destino devem ter exatamente 3 caracteres.\n"
-          );
-          continue;
-        }
+        this.inputValidator.isCurrencyCodeValid(from);
+        this.inputValidator.isCurrencyCodeValid(to);
+        this.inputValidator.isAmountValid(amount);
 
-        if (!InputValidator.isAmountValid(amount)) {
-          console.log(
-            "O valor de entrada deve ser um número positivo maior que zero.\n"
-          );
-          continue;
-        }
-
-        const response = await this.apiClient.fetchExchangeRate(
+        const response = await this.exchangeRate.fetchExchangeRate(
           from,
           to,
           amount
         );
+
         const convertedAmount = response.result.toFixed(2);
         const rate = response.info.rate.toFixed(6);
+
         console.log(
           `\nValor convertido: ${from} ${amount.toFixed(
             2

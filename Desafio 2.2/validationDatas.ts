@@ -1,10 +1,18 @@
 class InputValidator {
-  static isCurrencyCodeValid(currencyCode: string): boolean {
-    return currencyCode.length === 3;
+  isCurrencyCodeValid(currencyCode: string): boolean {
+    if (currencyCode.length !== 3) {
+      throw new Error("Erro: Moeda deve ter exatamente 3 caracteres.");
+    }
+    return true;
   }
 
-  static isAmountValid(amount: number): boolean {
-    return !isNaN(amount) && amount > 0;
+  isAmountValid(amount: number): boolean {
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error(
+        "Erro: O valor de entrada deve ser um número positivo maior que zero."
+      );
+    }
+    return true;
   }
 }
 
