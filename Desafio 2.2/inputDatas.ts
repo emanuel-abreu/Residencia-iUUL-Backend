@@ -3,7 +3,7 @@ import readlineSync from "readline-sync";
 class InputHandler {
   getCurrencyCode(prompt: string): string {
     const currencyCode = readlineSync.question(prompt).toUpperCase();
-    if (!/^[A-Z]{3}$/.test(currencyCode)) {
+    if (currencyCode.length !== 3 && currencyCode.length !== 0) {
       throw new Error(
         " O código da moeda deve ser uma string com exatamente 3 caracteres. Tente novamente.\n "
       );
