@@ -12,7 +12,7 @@ class InputHandler {
   }
 
   getAmount(prompt: string): number {
-    const amount = readlineSync.question(prompt);
+    const amount = readlineSync.questionFloat(prompt);
     if (Number(amount) <= 0) {
       throw new Error(
         " O valor de entrada deve ser um número positivo maior que zero. Tente novamente.\n"
