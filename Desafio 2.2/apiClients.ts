@@ -31,8 +31,8 @@ class ExchangeRate extends GenericApiClient<Converter> {
     to: string,
     amount: number
   ): Promise<Converter> {
-    const urlApi: string = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
     try {
+      const urlApi: string = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
       return await this.fetchApi(urlApi);
     } catch (error) {
       throw new Error(`Erro na comunicação com a API: ${error}`);
