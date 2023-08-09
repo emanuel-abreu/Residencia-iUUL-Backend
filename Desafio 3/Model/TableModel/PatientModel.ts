@@ -1,33 +1,25 @@
-import Agenda from "./Agenda.js";
-
 class Patient {
-  #agenda;
-  #cpf;
-  #name;
-  #dateOfBirth;
+  #cpf: string;
+  #name: string;
+  #dateOfBirth: string;
 
   constructor(cpf: string, name: string, dateOfBirth: string) {
     this.#cpf = cpf;
     this.#name = name;
     this.#dateOfBirth = dateOfBirth;
-    this.#agenda = new Agenda();
   }
 
-  get cpf() {
+  get cpf(): string {
     return this.#cpf;
   }
 
-  get name() {
+  get name(): string {
     return this.#name;
   }
 
-  get dateOfBirth() {
+  get dateOfBirth(): string {
     return this.#dateOfBirth;
-  }
-
-  get agenda() {
-    return this.#agenda;
   }
 }
 
-export default Patient;
+export { Patient };

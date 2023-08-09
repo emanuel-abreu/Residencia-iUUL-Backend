@@ -1,10 +1,12 @@
-import MainController from "./Controller/MainController.js";
-
-MainController;
+import ModelController from "./Controller/ModelController.js";
+import ViewController from "./Controller/ViewControlle.js";
+import Menus from "./View/Output/menus-view.js";
 
 class App {
   start() {
-    const controller = new MainController();
+    const modelController = new ModelController();
+    const menus = new Menus();
+    const viewController = new ViewController(menus);
   }
 }
 
