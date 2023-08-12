@@ -1,5 +1,5 @@
 import ModelController from "./Controller/ModelController.js";
-import ViewController from "./Controller/ViewControlle.js";
+import { ViewController } from "./Controller/ViewControlle.js";
 import Menus from "./View/Output/menus-view.js";
 
 class App {

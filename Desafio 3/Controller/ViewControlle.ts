@@ -1,3 +1,5 @@
+import * as readlineSync from "readline-sync";
+
 import Menus from "../View/Output/menus-view.js";
 
 class ViewController {
@@ -5,6 +7,10 @@ class ViewController {
 
   constructor(view: Menus) {
     this.view = view;
+  }
+
+  getInput(prompt: string): string {
+    return readlineSync.question(prompt);
   }
 
   execute(): void {
@@ -76,4 +82,4 @@ class ViewController {
   }
 }
 
-export default ViewController;
+export { ViewController };
