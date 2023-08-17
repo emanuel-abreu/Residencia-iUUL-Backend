@@ -4,8 +4,9 @@ import {
   IPatientRepository,
   IAppointmentRepository,
 } from "../Model/Interfaces/interface-patient-repository.js";
-import { Patient } from "../Model/Models/PatientModel.js";
-import { Appointment } from "../Model/Models/AppointmentModel.js";
+import { PatientService } from "../Service/PatientService.js";
+import { ValidationUtils } from "../Validations/Validations.js";
+import { AppointmentService } from "../Service/AppointmentService.js";
 
 class Controller {
   private inputView: InputView;
@@ -95,8 +96,6 @@ class Controller {
     }
   }
 
-  // Funções específicas do menu de pacientes
-
   async cadastrarPaciente(): Promise<void> {
     const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
     const name = this.inputView.getInput("Digite o nome do paciente: ");
@@ -105,12 +104,17 @@ class Controller {
     );
 
     try {
-      const newPatient = new Patient(cpf, name, dateOfBirth);
-      this.patientRepository.add(newPatient);
+      const patientService = new PatientService(
+        this.appointmentRepository,
+        this.patientRepository,
+        new ValidationUtils()
+      );
+
+      await patientService.createPatient(cpf, name, dateOfBirth);
       this.outputView.showOutput("Paciente cadastrado com sucesso!");
     } catch (error) {
       this.outputView.showOutput(
-        `Erro ao cadastrar paciente: ${error.message}`
+        `Erro ao cadastrar paciente: ${(error as Error).message}`
       );
     }
   }
@@ -121,52 +125,135 @@ class Controller {
     );
 
     try {
-      const deleted = this.patientRepository.delete(cpf);
-      if (deleted) {
-        this.outputView.showOutput("Paciente excluído com sucesso!");
-      } else {
-        this.outputView.showOutput(
-          "Paciente não encontrado ou possui agendamentos futuros."
-        );
-      }
+      const patientService = new PatientService(
+        this.appointmentRepository,
+        this.patientRepository,
+        new ValidationUtils()
+      );
+
+      await patientService.deletePatient(cpf);
+      this.outputView.showOutput("Paciente excluído com sucesso!");
     } catch (error) {
-      this.outputView.showOutput(`Erro ao excluir paciente: ${error.message}`);
+      this.outputView.showOutput(
+        `Erro ao excluir paciente: ${(error as Error).message}`
+      );
     }
   }
 
   async listarPacientesOrdenadoPorCPF(): Promise<void> {
     try {
-      const patients = this.patientRepository.getAllOrderedByCPF();
-      this.outputView.showPatientList(patients);
+      const patientService = new PatientService(
+        this.appointmentRepository,
+        this.patientRepository,
+        new ValidationUtils()
+      );
+
+      const patients = await patientService.listPatients();
+      this.outputView.listPatientsView(patients);
     } catch (error) {
-      this.outputView.showOutput(`Erro ao listar pacientes: ${error.message}`);
+      this.outputView.showOutput(
+        `Erro ao listar pacientes: ${(error as Error).message}`
+      );
     }
   }
 
   async listarPacientesOrdenadoPorNome(): Promise<void> {
     try {
-      const patients = this.patientRepository.getAllOrderedByName();
-      this.outputView.showPatientList(patients);
+      const patientService = new PatientService(
+        this.appointmentRepository,
+        this.patientRepository,
+        new ValidationUtils()
+      );
+
+      const patients = await patientService.listPatients();
+      this.outputView.listPatientsView(patients);
     } catch (error) {
-      this.outputView.showOutput(`Erro ao listar pacientes: ${error.message}`);
+      this.outputView.showOutput(
+        `Erro ao listar pacientes: ${(error as Error).message}`
+      );
     }
   }
 
   // Funções específicas do menu de agenda
 
   async agendarConsulta(): Promise<void> {
-    // Implementar a lógica para agendar uma consulta
-    // Utilize this.inputView e this.outputView para interagir com a View
+    const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
+    const date = this.inputView.getInput(
+      "Digite a data da consulta (DD/MM/AAAA): "
+    );
+    const startTime = this.inputView.getInput(
+      "Digite a hora de início da consulta (HHmm): "
+    );
+    const endTime = this.inputView.getInput(
+      "Digite a hora de término da consulta (HHmm): "
+    );
+
+    try {
+      const appointmentService = new AppointmentService(
+        new ValidationUtils(),
+        this.patientRepository,
+        this.appointmentRepository
+      );
+
+      await appointmentService.createAppointment(cpf, date, startTime, endTime);
+      this.outputView.showOutput("Consulta agendada com sucesso!");
+    } catch (error) {
+      this.outputView.showOutput(
+        `Erro ao agendar consulta: ${(error as Error).message}`
+      );
+    }
   }
 
   async cancelarAgendamento(): Promise<void> {
-    // Implementar a lógica para cancelar um agendamento
-    // Utilize this.inputView e this.outputView para interagir com a View
+    const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
+    const date = this.inputView.getInput(
+      "Digite a data da consulta (DD/MM/AAAA): "
+    );
+    const startTime = this.inputView.getInput(
+      "Digite a hora de início da consulta (HHmm): "
+    );
+
+    try {
+      const appointmentService = new AppointmentService(
+        new ValidationUtils(),
+        this.patientRepository,
+        this.appointmentRepository
+      );
+
+      await appointmentService.cancelAppointment(cpf, date, startTime);
+      this.outputView.showOutput("Agendamento cancelado com sucesso!");
+    } catch (error) {
+      this.outputView.showOutput(
+        `Erro ao cancelar agendamento: ${(error as Error).message}`
+      );
+    }
   }
 
   async listarAgenda(): Promise<void> {
-    // Implementar a lógica para listar a agenda
-    // Utilize this.appointmentRepository e this.outputView para interagir com o Model e a View
+    const startDate = this.inputView.getInput(
+      "Digite a data de início (DD/MM/AAAA): "
+    );
+    const endDate = this.inputView.getInput(
+      "Digite a data de término (DD/MM/AAAA): "
+    );
+
+    try {
+      const appointmentService = new AppointmentService(
+        new ValidationUtils(),
+        this.patientRepository,
+        this.appointmentRepository
+      );
+
+      const appointments = await appointmentService.listAppointments(
+        startDate,
+        endDate
+      );
+      this.outputView.listAgendaView(appointments);
+    } catch (error) {
+      this.outputView.showOutput(
+        `Erro ao listar a agenda: ${(error as Error).message}`
+      );
+    }
   }
 }
 

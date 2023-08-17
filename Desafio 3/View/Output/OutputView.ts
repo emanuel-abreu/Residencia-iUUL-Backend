@@ -1,57 +1,68 @@
 import { InputOutputProvider } from "../Interface/IoutputinputProvider.js";
+import { Patient } from "../../Model/Models/PatientModel.js";
+import { Appointment } from "../../Model/Models/AppointmentModel.js";
+import { ValidationUtils } from "../../Validations/Validations.js";
 
 class OutputView {
   private ioProvider: InputOutputProvider;
+  private validations: ValidationUtils;
 
   constructor(ioProvider: InputOutputProvider) {
     this.ioProvider = ioProvider;
+    this.validations = new ValidationUtils();
   }
 
   showOutput(message: string): void {
-    console.log(message);
+    this.ioProvider.showOutput(message);
   }
 
-  calendarListinView(): void {
-    this.ioProvider.showOutput(`Data inicial: ${agenda.dateOfConsultation}`);
-    this.ioProvider.showOutput(`Data final: ${agenda.dateOfConsultation}\n`);
-
+  listPatientsView(patients: Patient[]): void {
     this.ioProvider.showOutput(
-      "========================================================"
+      "------------------------------------------------------------"
     );
-    this.ioProvider.showOutput("\tData\tH.Ini  H.Fim  Tempo  Nome\t\tDt.Nasc.");
+    this.ioProvider.showOutput("CPF\t\tNome\t\tDt.Nasc.\tIdade");
     this.ioProvider.showOutput(
-      "========================================================"
+      "------------------------------------------------------------"
     );
 
-    // Imprimir a quantidade de pacientes necessaria
-    // fazer a consulta no Banco de colocar no template string as consultas
-    this.ioProvider.showOutput(
-      `${agenda.dateOfConsultation} ${agenda.startTime}  ${agenda.endTime} ${agenda.time} ${agenda.name} ${agenda.dateOfBirth}`
-    );
+    for (const patient of patients) {
+      const formattedDateOfBirth = patient.dateOfBirth
+        .toISOString()
+        .slice(0, 10);
+      const age = this.validations.calculateAge(formattedDateOfBirth);
+      this.ioProvider.showOutput(
+        `${patient.cpf}\t${patient.name}\t${formattedDateOfBirth}\t${age}`
+      );
+    }
 
     this.ioProvider.showOutput(
-      "========================================================"
+      "------------------------------------------------------------"
     );
   }
 
-  listPatientsView(): void {
-    this.ioProvider.showOutput("---------------------------------------");
-    this.ioProvider.showOutput("CPF\tNome\t\tData de Nascimento\tIdade");
-    this.ioProvider.showOutput("---------------------------------------");
-
-    // fazer a consulta no Banco de colocar no template string as consultas
+  listAgendaView(appointments: Appointment[]): void {
     this.ioProvider.showOutput(
-      `${patient.cpf} ${patient.name} \t ${patient.dateOfBirth} ${patient.age}`
+      "-------------------------------------------------------------"
+    );
+    this.ioProvider.showOutput("Data");
+    this.ioProvider.showOutput("H.Ini H.Fim Tempo Nome");
+    this.ioProvider.showOutput("Dt.Nasc.");
+    this.ioProvider.showOutput(
+      "-------------------------------------------------------------"
     );
 
-    // fazer a consulta no Banco de colocar no template string
+    for (const appointment of appointments) {
+      const formattedDate = appointment.date.toISOString().slice(0, 10);
+      this.ioProvider.showOutput(
+        `${formattedDate} ${appointment.startTime} ${appointment.endTime} ${
+          appointment.patientId
+        } ${appointment.patientId.dateOfBirth.toISOString().slice(0, 10)}`
+      );
+    }
+
     this.ioProvider.showOutput(
-      `\nAgendado para: ${consulta.dateOfConsultation}`
+      "-------------------------------------------------------------"
     );
-    this.ioProvider.showOutput(
-      `\n${consulta.startTime} às ${consulta.endTime}`
-    );
-    this.ioProvider.showOutput("---------------------------------------");
   }
 
   showMainMenu() {
