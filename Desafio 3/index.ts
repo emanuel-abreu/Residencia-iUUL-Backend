@@ -1,14 +1,20 @@
-import ModelController from "./Controller/ModelController.js";
-import { ViewController } from "./Controller/ViewControlle.js";
-import Menus from "./View/Output/menus-view.js";
+import { InputOutputProvider } from "./View/Interface/IoutputinputProvider.js";
+import { InputView } from "./View/Input/InputView.js";
+import { OutputView } from "./View/Output/OutputView.js";
+import { Controller } from "./Controller/controller.js";
+import { PatientRepository } from "./Model/DAO/patient-repository.js";
+import { AppointmentRepository } from "./Model/DAO/appointment-repository.js";
 
-class App {
-  start() {
-    const modelController = new ModelController();
-    const menus = new Menus();
-    const viewController = new ViewController(menus);
-  }
-}
+const inputView = new InputView();
+const outputView = new OutputView();
+const patientRepository = new PatientRepository();
+const appointmentRepository = new AppointmentRepository();
 
-const runproject = new App();
-runproject.start();
+const controller = new Controller(
+  inputView,
+  outputView,
+  patientRepository,
+  appointmentRepository
+);
+
+controller.run();

@@ -1,20 +1,26 @@
-import { Patient } from "../TableModel/PatientModel.js";
 import { IPatientRepository } from "../Interfaces/interface-patient-repository.js";
+import { Patient } from "../Models/PatientModel.js";
 
 class PatientRepository implements IPatientRepository {
-  private patients: Patient[];
-
-  constructor() {
-    this.patients = [];
+  async add(patient: Patient): Promise<void> {
+    await patient.save();
   }
 
-  add(patient: Patient): void {
-    this.patients.push(patient);
+  async findByCPF(cpf: string): Promise<Patient | null> {
+    return Patient.findOne({
+      where: { cpf },
+    });
   }
 
-  getAll(): Patient[] {
-    return this.patients.slice();
+  async getAll(): Promise<Patient[]> {
+    return Patient.findAll();
+  }
+
+  async deleteByCPF(cpf: string): Promise<void> {
+    await Patient.destroy({
+      where: { cpf },
+    });
   }
 }
 
-export default PatientRepository;
+export { PatientRepository };
