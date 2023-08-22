@@ -1,19 +1,17 @@
-import { InputOutputProvider } from "../Interface/IoutputinputProvider.js";
 import { Patient } from "../../Model/Models/PatientModel.js";
 import { Appointment } from "../../Model/Models/AppointmentModel.js";
+
 import { ValidationUtils } from "../../Validations/Validations.js";
+import { InputOutputProviderImpl } from "../Input/InputOutputProviderImpl.js";
 
 class OutputView {
-  private ioProvider: InputOutputProvider;
+  private ioProvider: InputOutputProviderImpl;
+
   private validations: ValidationUtils;
 
-  constructor(ioProvider: InputOutputProvider) {
+  constructor(ioProvider: InputOutputProviderImpl) {
     this.ioProvider = ioProvider;
     this.validations = new ValidationUtils();
-  }
-
-  showOutput(message: string): void {
-    this.ioProvider.showOutput(message);
   }
 
   listPatientsView(patients: Patient[]): void {
@@ -40,7 +38,9 @@ class OutputView {
     );
   }
 
-  listAgendaView(appointments: Appointment[]): void {
+  listAgendaView(appointments: Appointment[]): // appointments: Appointment[],
+
+  void {
     this.ioProvider.showOutput(
       "-------------------------------------------------------------"
     );
@@ -51,14 +51,25 @@ class OutputView {
       "-------------------------------------------------------------"
     );
 
-    for (const appointment of appointments) {
-      const formattedDate = appointment.date.toISOString().slice(0, 10);
-      this.ioProvider.showOutput(
-        `${formattedDate} ${appointment.startTime} ${appointment.endTime} ${
-          appointment.patientId
-        } ${appointment.patientId.dateOfBirth.toISOString().slice(0, 10)}`
-      );
-    }
+    // for (const appointment of appointments) {
+    //   const formattedDate = appointment.date.toISOString().slice(0, 10);
+
+    //   const patient = this.patientRepository.findByCPF(appointment.patientId);
+
+    //   if (patient) {
+    //     const age = this.validations.calculateAge(
+    //       patient.dateOfBirth.toISOString().slice(0, 10)
+    //     );
+
+    //     this.ioProvider.showOutput(
+    //       `${formattedDate} ${appointment.startTime} ${appointment.endTime} ${
+    //         appointment.time
+    //       } ${patient.name} ${patient.dateOfBirth
+    //         .toISOString()
+    //         .slice(0, 10)} ${age}`
+    //     );
+    //   }
+    // }
 
     this.ioProvider.showOutput(
       "-------------------------------------------------------------"

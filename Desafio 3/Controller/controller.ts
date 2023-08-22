@@ -1,4 +1,4 @@
-import { InputView } from "../View/Input/InputView.js";
+import { InputOutputProviderImpl } from "../View/Input/InputOutputProviderImpl.js";
 import { OutputView } from "../View/Output/OutputView.js";
 import {
   IPatientRepository,
@@ -7,20 +7,23 @@ import {
 import { PatientService } from "../Service/PatientService.js";
 import { ValidationUtils } from "../Validations/Validations.js";
 import { AppointmentService } from "../Service/AppointmentService.js";
+import { sequelize } from "../database/connectionBD.js";
+
+await sequelize.sync({ alter: true });
 
 class Controller {
-  private inputView: InputView;
+  private ioProvider: InputOutputProviderImpl;
   private outputView: OutputView;
   private patientRepository: IPatientRepository;
   private appointmentRepository: IAppointmentRepository;
 
   constructor(
-    inputView: InputView,
+    ioProvider: InputOutputProviderImpl,
     outputView: OutputView,
     patientRepository: IPatientRepository,
     appointmentRepository: IAppointmentRepository
   ) {
-    this.inputView = inputView;
+    this.ioProvider = ioProvider;
     this.outputView = outputView;
     this.patientRepository = patientRepository;
     this.appointmentRepository = appointmentRepository;
@@ -29,7 +32,7 @@ class Controller {
   async run(): Promise<void> {
     this.outputView.showMainMenu();
 
-    const option = this.inputView.getInput("Escolha uma opção: ");
+    const option = this.ioProvider.getInput("Escolha uma opção: ");
 
     switch (option) {
       case "1":
@@ -39,10 +42,10 @@ class Controller {
         await this.handleAgendaActions();
         break;
       case "3":
-        this.outputView.showOutput("Encerrando o programa...");
+        this.ioProvider.showOutput("Encerrando o programa...");
         break;
       default:
-        this.outputView.showOutput("Opção inválida. Digite novamente.");
+        this.ioProvider.showOutput("Opção inválida. Digite novamente.");
         break;
     }
   }
@@ -50,7 +53,7 @@ class Controller {
   async handlePatientActions(): Promise<void> {
     this.outputView.showPatientRegistrationMenu();
 
-    const patientOption = this.inputView.getInput("Digite a opção desejada: ");
+    const patientOption = this.ioProvider.getInput("Digite a opção desejada: ");
 
     switch (patientOption) {
       case "1":
@@ -66,9 +69,10 @@ class Controller {
         await this.listarPacientesOrdenadoPorNome();
         break;
       case "5":
+        this.outputView.showMainMenu();
         break;
       default:
-        this.outputView.showOutput("Opção inválida. Digite novamente.");
+        this.ioProvider.showOutput("Opção inválida. Digite novamente.");
         break;
     }
   }
@@ -76,7 +80,7 @@ class Controller {
   async handleAgendaActions(): Promise<void> {
     this.outputView.showAgendaMenu();
 
-    const agendaOption = this.inputView.getInput("Digite a opção desejada: ");
+    const agendaOption = this.ioProvider.getInput("Digite a opção desejada: ");
 
     switch (agendaOption) {
       case "1":
@@ -89,17 +93,18 @@ class Controller {
         await this.listarAgenda();
         break;
       case "4":
+        this.outputView.showMainMenu();
         break;
       default:
-        this.outputView.showOutput("Opção inválida. Digite novamente.");
+        this.ioProvider.showOutput("Opção inválida. Digite novamente.");
         break;
     }
   }
 
   async cadastrarPaciente(): Promise<void> {
-    const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
-    const name = this.inputView.getInput("Digite o nome do paciente: ");
-    const dateOfBirth = this.inputView.getInput(
+    const cpf = this.ioProvider.getInput("Digite o CPF do paciente: ");
+    const name = this.ioProvider.getInput("Digite o nome do paciente: ");
+    const dateOfBirth = this.ioProvider.getInput(
       "Digite a data de nascimento do paciente (DD/MM/AAAA): "
     );
 
@@ -111,16 +116,16 @@ class Controller {
       );
 
       await patientService.createPatient(cpf, name, dateOfBirth);
-      this.outputView.showOutput("Paciente cadastrado com sucesso!");
+      this.ioProvider.showOutput("Paciente cadastrado com sucesso!");
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao cadastrar paciente: ${(error as Error).message}`
       );
     }
   }
 
   async excluirPaciente(): Promise<void> {
-    const cpf = this.inputView.getInput(
+    const cpf = this.ioProvider.getInput(
       "Digite o CPF do paciente que deseja excluir: "
     );
 
@@ -132,9 +137,9 @@ class Controller {
       );
 
       await patientService.deletePatient(cpf);
-      this.outputView.showOutput("Paciente excluído com sucesso!");
+      this.ioProvider.showOutput("Paciente excluído com sucesso!");
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao excluir paciente: ${(error as Error).message}`
       );
     }
@@ -151,7 +156,7 @@ class Controller {
       const patients = await patientService.listPatients();
       this.outputView.listPatientsView(patients);
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao listar pacientes: ${(error as Error).message}`
       );
     }
@@ -168,7 +173,7 @@ class Controller {
       const patients = await patientService.listPatients();
       this.outputView.listPatientsView(patients);
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao listar pacientes: ${(error as Error).message}`
       );
     }
@@ -177,14 +182,14 @@ class Controller {
   // Funções específicas do menu de agenda
 
   async agendarConsulta(): Promise<void> {
-    const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
-    const date = this.inputView.getInput(
+    const cpf = this.ioProvider.getInput("Digite o CPF do paciente: ");
+    const date = this.ioProvider.getInput(
       "Digite a data da consulta (DD/MM/AAAA): "
     );
-    const startTime = this.inputView.getInput(
+    const startTime = this.ioProvider.getInput(
       "Digite a hora de início da consulta (HHmm): "
     );
-    const endTime = this.inputView.getInput(
+    const endTime = this.ioProvider.getInput(
       "Digite a hora de término da consulta (HHmm): "
     );
 
@@ -196,20 +201,20 @@ class Controller {
       );
 
       await appointmentService.createAppointment(cpf, date, startTime, endTime);
-      this.outputView.showOutput("Consulta agendada com sucesso!");
+      this.ioProvider.showOutput("Consulta agendada com sucesso!");
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao agendar consulta: ${(error as Error).message}`
       );
     }
   }
 
   async cancelarAgendamento(): Promise<void> {
-    const cpf = this.inputView.getInput("Digite o CPF do paciente: ");
-    const date = this.inputView.getInput(
+    const cpf = this.ioProvider.getInput("Digite o CPF do paciente: ");
+    const date = this.ioProvider.getInput(
       "Digite a data da consulta (DD/MM/AAAA): "
     );
-    const startTime = this.inputView.getInput(
+    const startTime = this.ioProvider.getInput(
       "Digite a hora de início da consulta (HHmm): "
     );
 
@@ -221,19 +226,19 @@ class Controller {
       );
 
       await appointmentService.cancelAppointment(cpf, date, startTime);
-      this.outputView.showOutput("Agendamento cancelado com sucesso!");
+      this.ioProvider.showOutput("Agendamento cancelado com sucesso!");
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao cancelar agendamento: ${(error as Error).message}`
       );
     }
   }
 
   async listarAgenda(): Promise<void> {
-    const startDate = this.inputView.getInput(
+    const startDate = this.ioProvider.getInput(
       "Digite a data de início (DD/MM/AAAA): "
     );
-    const endDate = this.inputView.getInput(
+    const endDate = this.ioProvider.getInput(
       "Digite a data de término (DD/MM/AAAA): "
     );
 
@@ -250,7 +255,7 @@ class Controller {
       );
       this.outputView.listAgendaView(appointments);
     } catch (error) {
-      this.outputView.showOutput(
+      this.ioProvider.showOutput(
         `Erro ao listar a agenda: ${(error as Error).message}`
       );
     }
